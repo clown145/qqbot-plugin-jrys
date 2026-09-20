@@ -30,8 +30,14 @@ export default definePlugin<JrysConfig>({
       fixed_daily_fortune: {
         type: 'boolean',
         title: '每日固定运势',
-        description: '开启后，同一用户每天多次抽取运势与海报将保持固定不变',
+        description: '开启后，同一用户每天多次抽取运势签文保持固定不变',
         default: true,
+      },
+      fixed_daily_background: {
+        type: 'boolean',
+        title: '固定每日背景图',
+        description: '默认关闭：每次抽取运势随机换新背景壁纸；开启后背景图随每日运势一同固定',
+        default: false,
       },
       holiday_rates_enabled: {
         type: 'boolean',
@@ -68,7 +74,7 @@ export default definePlugin<JrysConfig>({
       fallback_to_text: {
         type: 'boolean',
         title: '渲染异常时降级图文',
-        description: '当 T2I 服务发生超时或网络故障时，以精美 Markdown 图文代替失败，保证服务可用性',
+        description: '当 T2I 服务发生超时或网络故障时，以简易图文卡片兜底，保证服务可用性',
         default: true,
       },
     },
@@ -78,6 +84,7 @@ export default definePlugin<JrysConfig>({
     t2i_url: 'https://clown145-astrbot-t2i-service.hf.space',
     t2i_timeout: 25000,
     fixed_daily_fortune: true,
+    fixed_daily_background: false,
     holiday_rates_enabled: true,
     holidays: ['01-01', '02-14', '05-01', '10-01', '12-25'],
     normal_rates: { good: 40, normal: 40, bad: 20 },
@@ -113,7 +120,7 @@ export default definePlugin<JrysConfig>({
         }
         await ctx.kv.put(`last:${userId}`, JSON.stringify(record), { ttl: 86400 * 7 })
 
-        // 3. 组装 1080x1920 海报 HTML 模板
+        // 3. 组装 1080x1920 海报 HTML 模板（1:1 还原原版 painter.py 布局）
         const html = renderFortunePosterHtml(fortune)
 
         // 4. 调用 AstrBot T2I 服务渲染成图片
@@ -126,7 +133,7 @@ export default definePlugin<JrysConfig>({
           const errMsg = err instanceof Error ? err.message : String(err)
           ctx.logger.error('T2I 渲染运势海报失败', { error: errMsg, user: userId })
 
-          // 若开启了降级容灾，以 Markdown 图文卡片回复
+          // 若开启了降级容灾，以图文回复
           if (ctx.config.fallback_to_text) {
             return {
               text:
@@ -134,7 +141,7 @@ export default definePlugin<JrysConfig>({
                 `星级：${fortune.item.luckyStar}\n` +
                 `签诗：“${fortune.item.signText}”\n` +
                 `解文：${fortune.item.unsignText}\n\n` +
-                `（海报渲染节点稍有延迟，已切换为简易签卡，背景原图见 /jrys_last）`,
+                `（T2I 节点冷启动或稍有延迟，已切换为简易签卡，背景原图见 /jrys_last）`,
               image: fortune.backgroundUrl ? { url: fortune.backgroundUrl } : undefined,
             }
           }

@@ -42,9 +42,9 @@ export function calculateFortune(
 ): FortuneResult {
   const date = getBeijingDate(customDate)
 
-  // 1. 初始化随机数发生器
-  const seed = config.fixed_daily_fortune ? `${userId}-${date.dateStr}` : undefined
-  const rng = createRng(seed)
+  // 1. 初始化运势随机数发生器（根据 fixed_daily_fortune 确定是否锁定本日签文）
+  const fortuneSeed = config.fixed_daily_fortune ? `${userId}-${date.dateStr}` : undefined
+  const fortuneRng = createRng(fortuneSeed)
 
   // 2. 判定节假日与爆率
   const isHoliday = config.holiday_rates_enabled && config.holidays.includes(date.monthDay)
@@ -73,18 +73,21 @@ export function calculateFortune(
   }
 
   // 5. 加权抽取运势分类，再从中随机挑选一条签文
-  const categoryKey = weightedChoice(validKeys, weights, rng)
+  const categoryKey = weightedChoice(validKeys, weights, fortuneRng)
   const categoryFortunes = fortuneData[categoryKey] ?? []
   if (categoryFortunes.length === 0) {
     throw new Error(`No fortune items found for key: ${categoryKey}`)
   }
-  const item: FortuneItem = randomChoice(categoryFortunes, rng)
+  const item: FortuneItem = randomChoice(categoryFortunes, fortuneRng)
 
-  // 6. 随机选择背景分类与图片 URL
+  // 6. 背景图抽取：
+  // 遵循原版 astrbot_plugin_jrys 行为：即使每日签文固定，每次指令也重新随机抽取一张壁纸
+  // 若用户开启 fixed_daily_background，则随签文一同固定
+  const bgRng = config.fixed_daily_background ? fortuneRng : createRng()
   const categories = Object.keys(BACKGROUND_CATEGORIES)
-  const chosenCategory = randomChoice(categories, rng)
+  const chosenCategory = randomChoice(categories, bgRng)
   const categoryUrls = BACKGROUND_CATEGORIES[chosenCategory] ?? []
-  const backgroundUrl = categoryUrls.length > 0 ? randomChoice(categoryUrls, rng) : ''
+  const backgroundUrl = categoryUrls.length > 0 ? randomChoice(categoryUrls, bgRng) : ''
 
   return {
     item,

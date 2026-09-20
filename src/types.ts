@@ -6,8 +6,10 @@ export interface JrysConfig {
   t2i_url: string
   /** 渲染超时时间 (ms) */
   t2i_timeout: number
-  /** 是否启用每日固定运势（同一用户在当天多次触发结果固定） */
+  /** 是否启用每日固定运势（同一用户在当天多次触发签文结果固定） */
   fixed_daily_fortune: boolean
+  /** 是否连同背景图也一同固定（默认关闭：每次触发随机抽取新背景壁纸） */
+  fixed_daily_background: boolean
   /** 是否启用节假日高爆率 */
   holiday_rates_enabled: boolean
   /** 节假日日期列表 (MM-DD 格式) */

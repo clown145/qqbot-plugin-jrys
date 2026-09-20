@@ -37,13 +37,20 @@ describe('PRNG & Deterministic Seeding', () => {
 describe('Fortune Calculation', () => {
   const config = plugin.defaultConfig!
 
-  it('同一用户在同一天多次抽取返回完全相同的结果（每日固定运势）', () => {
+  it('同一用户在同一天多次抽取签文结果固定', () => {
     const res1 = calculateFortune('user_abc', '测试用户', 'https://avatar.test/1', config, new Date('2026-09-20T10:00:00Z'))
     const res2 = calculateFortune('user_abc', '测试用户', 'https://avatar.test/1', config, new Date('2026-09-20T11:00:00Z'))
 
     expect(res1.item.fortuneSummary).toBe(res2.item.fortuneSummary)
     expect(res1.item.luckyStar).toBe(res2.item.luckyStar)
     expect(res1.item.signText).toBe(res2.item.signText)
+  })
+
+  it('fixed_daily_background=true 时背景图随签文一同固定', () => {
+    const customConfig = { ...config, fixed_daily_background: true }
+    const res1 = calculateFortune('user_abc', '测试用户', 'https://avatar.test/1', customConfig, new Date('2026-09-20T10:00:00Z'))
+    const res2 = calculateFortune('user_abc', '测试用户', 'https://avatar.test/1', customConfig, new Date('2026-09-20T11:00:00Z'))
+
     expect(res1.backgroundUrl).toBe(res2.backgroundUrl)
   })
 
@@ -55,17 +62,17 @@ describe('Fortune Calculation', () => {
 })
 
 describe('HTML Poster Template', () => {
-  it('生成包含 1080x1920 及运势签文的 HTML', () => {
-    const fortune = calculateFortune('user_1', '张三<script>', 'https://avatar.test/a.jpg', plugin.defaultConfig!)
+  it('生成 1:1 还原原版 painter.py 的 HTML', () => {
+    const fortune = calculateFortune('user_1', '张三', 'https://avatar.test/a.jpg', plugin.defaultConfig!)
     const html = renderFortunePosterHtml(fortune)
 
     expect(html).toContain('1080')
     expect(html).toContain('1920')
     expect(html).toContain(fortune.item.fortuneSummary)
     expect(html).toContain(fortune.item.luckyStar)
-    // 验证 XSS 转义
-    expect(html).toContain('张三&lt;script&gt;')
-    expect(html).not.toContain('<script>')
+    expect(html).toContain('translucent-layer')
+    expect(html).toContain('avatar-img')
+    expect(html).toContain('仅供娱乐 | 相信科学 | 请勿迷信')
   })
 })
 

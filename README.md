@@ -1,6 +1,6 @@
-# qqbot-plugin-jrys (今日运势)
+# qflarebot-plugin-jrys (今日运势)
 
-适用于 [qqbot-workers](https://github.com/clown145/qqbot-workers) 的 QQ 官方机器人今日运势海报生成插件。移植自 [astrbot_plugin_jrys](https://github.com/NINIYOYYO/astrbot_plugin_jrys)。
+适用于 [QFlareBot](https://github.com/QFlareBot/QFlareBot) 的 QQ 官方机器人今日运势海报生成插件。移植自 [astrbot_plugin_jrys](https://github.com/NINIYOYYO/astrbot_plugin_jrys)。
 
 通过调用 **AstrBot T2I (Text-to-Image)** 渲染服务，在无状态、无 C++ 本地绘图引擎的 Cloudflare Workers 边缘计算环境中，直接生成 **1080×1920** 高保真玻璃拟态二次元运势海报！
 

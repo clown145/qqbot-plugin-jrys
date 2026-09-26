@@ -101,7 +101,10 @@ describe('Commands', () => {
     )
 
     const session = createMockSession({ userId: 'u123', content: '/jrys_last' })
-    const reply = await plugin.commands!.jrys_last!.handler({
+    // Command 可以直接写成函数，也可以是带 handler 的对象
+    const command = plugin.commands!.jrys_last!
+    const handler = typeof command === 'function' ? command : command.handler
+    const reply = await handler({
       session,
       ctx,
       command: 'jrys_last',

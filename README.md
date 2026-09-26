@@ -30,7 +30,7 @@
 
 ## ⚙️ 配置说明 (`configSchema`)
 
-可在 `qqbot-workers` 管理面板的「插件配置」中可视化调节：
+可在 QFlareBot 管理面板的「插件配置」中可视化调节：
 
 | 配置项 | 类型 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- |
@@ -46,6 +46,8 @@
 ---
 
 ## 📦 本地构建与测试
+
+`@qqbot/sdk` 与 `@qqbot/plugin-cli` 不发 npm：先把 [QFlareBot](https://github.com/QFlareBot/QFlareBot) 克隆到本仓库旁边并构建 plugin-cli（`cd QFlareBot && pnpm install --filter '@qqbot/plugin-cli...' && pnpm --filter '@qqbot/plugin-cli...' build`），`devDependencies` 指向 `file:../QFlareBot/packages/*`。
 
 ```bash
 npm install      # 安装依赖
